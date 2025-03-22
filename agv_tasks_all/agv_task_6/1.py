@@ -7,24 +7,6 @@ keypoints2 = points["pts2"]
 image1 = plt.imread('im1.png')
 image2 = plt.imread('im2.png')
 
-def compute_camera_matrix(essential_matrix):
-    U, singular_values, V = np.linalg.svd(essential_matrix)
-    avg_value = singular_values[:2].mean()
-    essential_matrix = U.dot(np.array([[avg_value, 0, 0], [0, avg_value, 0], [0, 0, 0]])).dot(V)
-    U, singular_values, V = np.linalg.svd(essential_matrix)
-    W = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
-
-    if np.linalg.det(U.dot(W).dot(V)) < 0:
-        W = -W
-
-    camera_matrices = np.zeros([3, 4, 4])
-    camera_matrices[:, :, 0] = np.concatenate([U.dot(W).dot(V), U[:, 2].reshape([-1, 1]) / abs(U[:, 2]).max()], axis=1)
-    camera_matrices[:, :, 1] = np.concatenate([U.dot(W).dot(V), -U[:, 2].reshape([-1, 1]) / abs(U[:, 2]).max()], axis=1)
-    camera_matrices[:, :, 2] = np.concatenate([U.dot(W.T).dot(V), U[:, 2].reshape([-1, 1]) / abs(U[:, 2]).max()], axis=1)
-    camera_matrices[:, :, 3] = np.concatenate([U.dot(W.T).dot(V), -U[:, 2].reshape([-1, 1]) / abs(U[:, 2]).max()], axis=1)
-
-    return camera_matrices
-
 def refine_fundamental_matrix(fundamental_matrix):
     U, singular_values, Vt = np.linalg.svd(fundamental_matrix)
     singular_values[-1] = 0
